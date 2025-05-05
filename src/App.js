@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './App.css';
 import {
   Box,
@@ -11,12 +11,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  List,
-  ListItem,
-  ListItemText,
   Stack,
-  Card,
-  CardContent
+  Card
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -25,15 +21,16 @@ function App() {
   const [titleInput, setTitleInput] = useState('');
   const [descInput, setDescInput] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const idCounter = useRef(0);
 
   const addTask = () => {
     if (!titleInput.trim() || !descInput.trim()) return;
     const newTask = {
-      id: Date.now(),
+      id: idCounter.current++,
       title: titleInput,
       description: descInput,
       completed: false
-    };
+    };    
     setTasks([...tasks, newTask]);
     setTitleInput('');
     setDescInput('');
@@ -86,50 +83,7 @@ function App() {
           </Button>
         </Stack>
 
-        {/* Task List
-        <List>
-          {tasks.map(task => (
-            <ListItem key={task.id} divider alignItems="flex-start">
-              <Checkbox
-                edge="start"
-                checked={task.completed}
-                onChange={() => toggleTask(task.id)}
-                sx={{ mt: 0.5 }}
-              />
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textDecoration: task.completed ? 'line-through' : 'none',
-                      color: task.completed ? 'gray' : 'black',
-                    }}
-                  >
-                    {task.title}
-                  </Typography>
-                }
-                secondary={
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      textDecoration: task.completed ? 'line-through' : 'none',
-                      color: task.completed ? 'gray' : 'black',
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {task.description}
-                  </Typography>
-                }
-              />
-              <Box ml="auto">
-                <IconButton edge="end" onClick={() => setConfirmDeleteId(task.id)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </Box>
-            </ListItem>
-          ))}
-        </List> */}
-
+        {/* Cards */}      
         {tasks.map(task => (
           <Box key={task.id} mb={2}>
             <Card variant="outlined">
@@ -168,16 +122,15 @@ function App() {
           </Box>
         ))}
 
-
-
-
-
-        {/* Delete Dialog */}
+        {/* Delete */}
         <Dialog
-          open={Boolean(confirmDeleteId)}
+          open={confirmDeleteId !== null}
           onClose={() => setConfirmDeleteId(null)}
         >
-          <DialogTitle>Delete Task</DialogTitle>
+
+          <DialogTitle>
+            {`Delete "${tasks.find(t => t.id === confirmDeleteId)?.title}"?`}
+          </DialogTitle>
           <DialogContent>
             Are you sure you want to delete this task?
           </DialogContent>
@@ -186,7 +139,6 @@ function App() {
             <Button color="error" onClick={deleteTask}>Delete</Button>
           </DialogActions>
         </Dialog>
-
       </Box>
     </Box>
   );
